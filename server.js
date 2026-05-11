@@ -1,29 +1,38 @@
-import express from "express"
-import 'dotenv/config'
-import cors from 'cors'
-import connectDB from "./config/db.js"
-import adminRouter from "./routes/adminRoutes.js"
+import express from "express";
+import "dotenv/config";
+import cors from "cors";
 
-// crating express app 
-const app = express()
+import connectDB from "./config/db.js";
 
-await connectDB()
+import adminRouter from "./routes/adminRoutes.js";
+import blogRouter from "./routes/blogRoutes.js";
+
+// creating express app
+const app = express();
+
+await connectDB();
 
 // middlewares
-app.use(cors())
-app.use(express.json())
+app.use(cors());
 
-// routes 
-app.get('/',(req,res)=>{
-    res.send("API working")
-})
+// FIXED: parses application/json
+app.use(express.json());
 
-app.use('/api/admin',adminRouter)
+// FIXED: parses form-data/urlencoded data
+app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT|| 3000;
+// routes
+app.get("/", (req, res) => {
+    res.send("API working");
+});
 
-app.listen(PORT,()=>{
-    console.log('server started on'+PORT)
-})
+app.use("/api/admin", adminRouter);
+app.use("/api/blog", blogRouter);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("server started on " + PORT);
+});
 
 export default app;
