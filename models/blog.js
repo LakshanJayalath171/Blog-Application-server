@@ -5,6 +5,9 @@ const blogSchema = new mongoose.Schema({
     content:{type:String,required:true},
     category:{type:String,required:true},
     isPublished:{type:Boolean,required:true},
+    upVotes:{type:Number,default:0},
+    downVotes:{type:Number,default:0},
+    views:{type:Number,default:0}
 },{timestamps:true})
 
 const Blog = mongoose.model('blog',blogSchema);
