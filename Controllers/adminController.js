@@ -100,3 +100,35 @@ export const blogCountBycategory = async(req,res)=>{
         })
     }
 }
+
+// most perfomed blog
+
+export const getTopBlogs = async(req,res)=>{
+    try {
+        const blogs = await Blog.aggregate([
+            {
+                $addFields:{
+                    perfomanceScore:{
+                        $add:[
+                            "$upVotes",
+                            "$views",
+                            {$multiply:["$downVotes",-1]}
+                        ]
+                    }
+                }
+            },
+            {
+                $sort:{
+                    perfomanceScore:-1,
+                }
+            },
+            {
+                $limit:5
+            }
+        ])
+
+        res.json({success:true,blogs})
+    } catch (error) {
+        res.json({success:false,message:error.message})
+    }
+}
