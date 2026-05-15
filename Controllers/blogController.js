@@ -7,6 +7,7 @@ export const addBlog = async (req, res) => {
         // FIXED: directly getting fields from req.body
         // no need JSON.parse(req.body.blog)
         const { title, content, category, isPublished ,upVotes,downVotes,views} = req.body;
+        
 
         // FIXED: proper validation for boolean value
         // because false is also a valid value
@@ -14,7 +15,8 @@ export const addBlog = async (req, res) => {
             !title ||
             !content ||
             !category ||
-            !isPublished 
+            !isPublished
+            
         ) {
             return res.json({
                 success: false,
@@ -23,21 +25,24 @@ export const addBlog = async (req, res) => {
         }
 
         // checking image
-        // if (!req.file) {
-        //     return res.json({
-        //         success: false,
-        //         message: "Blog image is required"
-        //     });
-        // }
+        if (!req.file) {
+            return res.json({
+                success: false,
+                message: "Blog image is required"
+            });
+        }
 
         // uploaded image url from cloudinary
-        // const imageUrl = req.file.path;
+        const image = req.file.path;
 
         // blog object
+
+        
         const blogData = {
             title,
             content,
             category,
+            image,
             isPublished,
             upVotes,
             downVotes,
@@ -113,9 +118,9 @@ export const deleteBlog = async (req,res)=>{
 export const togglePublish  = async (req,res)=>{
     try {
         const {blogId} = req.body;
-        console.log(blogId);
+
         const blog = await Blog.findById(blogId)
-        console.log(blog)
+
         blog.isPublished = !blog.isPublished
         await blog.save()
         res.json({success:true,message:"Blog Status Updated!"})
