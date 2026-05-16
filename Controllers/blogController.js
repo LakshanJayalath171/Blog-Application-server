@@ -1,3 +1,4 @@
+import cloudinary from "../config/cloudinary.js";
 import Blog from "../models/blog.js";
 
 // add blogs 
@@ -34,6 +35,7 @@ export const addBlog = async (req, res) => {
 
         // uploaded image url from cloudinary
         const image = req.file.path;
+        const imageId = req.file.filename;
 
         // blog object
 
@@ -43,6 +45,7 @@ export const addBlog = async (req, res) => {
             content,
             category,
             image,
+            imageId,
             isPublished,
             upVotes,
             downVotes,
@@ -104,7 +107,16 @@ export const deleteBlog = async (req,res)=>{
 
     try {
         const {blogId} = req.body;
+        const blog = await Blog.findById(blogId)
+
+        if(!blog){
+            res.json({success:false,message:"Blog not found"})
+        }
+        //delete blog from databse
         await Blog.findByIdAndDelete(blogId)
+        
+        //delete blog image from cloudinary
+        await cloudinary.uploader.destroy(blog.imageId)
         res.json({success:true,message:"Blog Deletion successfully"})
     } 
     catch (error) {
