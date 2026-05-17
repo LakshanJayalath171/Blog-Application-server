@@ -89,7 +89,7 @@ export const getAllBlogs = async(req,res)=>{
 export const findBlogById = async(req,res)=>{
     try {
         const {blogId} = req.params;
-        console.log(blogId)
+        
         const blog = await Blog.findById(blogId)
         if(!blog){
             return res.json({success:false,message:"Blog not found"})
@@ -139,5 +139,92 @@ export const togglePublish  = async (req,res)=>{
     } 
     catch (error) {
         res.json({success:false,message:error.message})
+    }
+}
+
+
+// making Up votes
+
+export const makeUpvote = async (req,res)=>{
+    try {
+        const {blogId} = req.body;
+
+        const userIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress
+        
+
+        const blog = await Blog.findById(blogId)
+
+        if(!blog){
+            res.json({success:false,message:"blog not found"})
+        }
+
+        //already upvoted
+        if(blog.upVotes.includes(userIp)){
+            res.json({success:false,message:"already upvoted"})
+        }
+
+        blog.downVotes = blog.downVotes.filter((ip)=>ip !==userIp)
+
+        blog.upVotes.push(userIp)
+        blog.save()
+
+        res.json({
+            success:true,
+            upVotes:blog.upVotes.length,
+            downVotes:blog.downVotes.length
+        })
+    } catch (error) {
+        res.json({
+            success:false,
+            message:error.message
+        })
+    }
+}
+
+// making down votes 
+
+export const makeDownVote = async(req,res)=>{
+    try {
+        const { blogId } = req.body;
+
+        const userIp = req.socket.remoteAddress || req.headers["x-forwarded-for"];
+        
+
+        const blog = await Blog.findById(blogId);
+
+        //check blog exits
+        if (!blog) {
+          res.json({
+            success: false,
+            message: "Blog not found",
+          });
+        }
+
+        //check already downvoted
+        if (blog.downVotes.includes(userIp)) {
+          res.json({
+            success: false,
+            message: "already downvoted",
+          });
+        }
+
+        //remove from upvotes
+
+        blog.upVotes = blog.upVotes.filter((ip) => ip !== userIp);
+
+        // add to downvotes
+        blog.downVotes.push(userIp);
+        blog.save();
+
+        res.json({
+          success: true,
+          upVotes: blog.upVotes.length,
+          downVotes: blog.downVotes.length,
+        });
+    } catch (error) {
+        res.json({
+            success:false,
+            message:error.message
+        })
     }
 }
