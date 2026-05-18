@@ -44,35 +44,6 @@ export const getBlogCount = async(req,res)=>{
     }
 }
 
-// const total votes count
-
-export const getVoteCount = async(req,res)=>{
-    try {
-        const stats = await Blog.aggregate([{
-            $group:{
-                _id:null,
-                totalUpVotes:{
-                    $sum:"$upVotes"
-                },
-                totalDownVotes:{
-                    $sum:"$downVotes"
-                },
-                totalViews:{
-                    $sum:"$views"
-                }
-            }
-        }
-      ]);
-        res.json({
-            success:true,
-            upVotes:stats[0]?.totalUpVotes || 0,
-            downVotes:stats[0]?.totalDownVotes || 0,
-            views:stats[0]?.totalViews||0
-        })
-    } catch (error) {
-        res.json({success:false,message:error.message})
-    }
-}
 
 // blog count by category
 
@@ -101,33 +72,123 @@ export const blogCountBycategory = async(req,res)=>{
     }
 }
 
-// most perfomed blog
+//get main data
 
-export const getTopBlogs = async(req,res)=>{
+export const getVoteCount = async(req,res)=>{
+
+    try {
+
+        const stats = await Blog.aggregate([
+
+            {
+                $project:{
+                    upVoteCount:{
+                        $size:"$upVotes"
+                    },
+
+                    downVoteCount:{
+                        $size:"$downVotes"
+                    },
+
+                    views:1
+                }
+            },
+
+            {
+                $group:{
+                    _id:null,
+
+                    totalUpVotes:{
+                        $sum:"$upVoteCount"
+                    },
+
+                    totalDownVotes:{
+                        $sum:"$downVoteCount"
+                    },
+
+                    totalViews:{
+                        $sum:"$views"
+                    }
+                }
+            }
+
+        ])
+
+        res.json({
+            success:true,
+
+            upVotes:stats[0]?.totalUpVotes || 0,
+
+            downVotes:stats[0]?.totalDownVotes || 0,
+
+            views:stats[0]?.totalViews || 0
+        })
+
+    } catch (error) {
+
+        res.json({
+            success:false,
+            message:error.message
+        })
+
+    }
+
+}
+
+// get most perfomed blogs 
+
+export const topBlogs = async (req,res)=>{
     try {
         const blogs = await Blog.aggregate([
+            //create votes count from array
+            {
+                $addFields:{
+                    upVoteCount:{
+                        $size:"$upVotes"
+                    },
+                    downVoteCount:{
+                        $size:"$downVotes"
+                    }
+                },
+
+               
+            },
             {
                 $addFields:{
                     perfomanceScore:{
                         $add:[
-                            "$upVotes",
                             "$views",
-                            {$multiply:["$downVotes",-1]}
+                            "$upVoteCount",
+                            {
+                                $multiply:[
+                                    "$downVoteCount",-1
+                                ]
+                            }
                         ]
                     }
                 }
             },
+
+            //sort highest scores first 
             {
-                $sort:{
-                    perfomanceScore:-1,
+                $sort: {
+                    perfomanceScore:-1
                 }
             },
+
+            // top 5 blbogs
             {
                 $limit:5
             }
+
+            
         ])
 
-        res.json({success:true,blogs})
+        res.json({
+            success:true,
+            blogs
+        })
+        
     } catch (error) {
         res.json({success:false,message:error.message})
     }

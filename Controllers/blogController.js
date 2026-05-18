@@ -47,8 +47,8 @@ export const addBlog = async (req, res) => {
             image,
             imageId,
             isPublished,
-            upVotes,
-            downVotes,
+            upVotes:[],
+            downVotes:[],
             views
         };
 
@@ -91,9 +91,12 @@ export const findBlogById = async(req,res)=>{
         const {blogId} = req.params;
         
         const blog = await Blog.findById(blogId)
+        
         if(!blog){
             return res.json({success:false,message:"Blog not found"})
         }
+        blog.views = blog.views + 1
+        await blog.save()
         res.json({success:true,blog})
     } 
     catch (error) {
@@ -155,12 +158,12 @@ export const makeUpvote = async (req,res)=>{
         const blog = await Blog.findById(blogId)
 
         if(!blog){
-            res.json({success:false,message:"blog not found"})
+            return res.json({success:false,message:"blog not found"})
         }
 
         //already upvoted
         if(blog.upVotes.includes(userIp)){
-            res.json({success:false,message:"already upvoted"})
+            return res.json({success:false,message:"already upvoted"})
         }
 
         blog.downVotes = blog.downVotes.filter((ip)=>ip !==userIp)
@@ -194,7 +197,7 @@ export const makeDownVote = async(req,res)=>{
 
         //check blog exits
         if (!blog) {
-          res.json({
+          return res.json({
             success: false,
             message: "Blog not found",
           });
@@ -202,7 +205,7 @@ export const makeDownVote = async(req,res)=>{
 
         //check already downvoted
         if (blog.downVotes.includes(userIp)) {
-          res.json({
+          return res.json({
             success: false,
             message: "already downvoted",
           });
@@ -228,3 +231,4 @@ export const makeDownVote = async(req,res)=>{
         })
     }
 }
+

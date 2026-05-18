@@ -7,8 +7,8 @@ const blogSchema = new mongoose.Schema({
     image:{type:String,required:true},
     imageId:{type:String,required:true},
     isPublished:{type:Boolean,required:true},
-    upVotes:[{type:String}],
-    downVotes:[{type:String}],
+    upVotes:[{type:String,default:[]}],
+    downVotes:[{type:String,default:[]}],
     views:{type:Number,default:0}
 },{timestamps:true})
 
