@@ -232,3 +232,45 @@ export const makeDownVote = async(req,res)=>{
     }
 }
 
+// get blogs by category
+export const getBlogsByCategory= async (req,res)=>{
+    try {
+        const {category} = req.params;
+        
+        
+        const blog = await Blog.find({
+            category,
+            isPublished:true
+        })
+
+        
+        if(blog.length == 0){
+            res.json({success:false,message:"No blog found"})
+        }
+        else{
+            res.json({
+                success:true,
+                totalBlogs:blog.length,
+                blog
+            })
+        }
+    } catch (error) {
+        res.json({success:false,message:error.message})
+    }
+}
+
+//get blogs by by created date
+
+export const getBlogsByDate = async(req,res)=>{
+    try {
+        const blog = await Blog.find({
+            isPublished:true
+        }).sort({
+            createdAt:-1
+        })
+
+        res.json({success:true,blog})
+    } catch (error) {
+        res.json({success:false,message:error.message})
+    }
+}
