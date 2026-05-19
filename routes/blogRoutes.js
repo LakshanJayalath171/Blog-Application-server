@@ -1,5 +1,5 @@
 import express from "express";
-import { addBlog, deleteBlog, findBlogById, getAllBlogs, getBlogsByCategory, getBlogsByDate, makeDownVote, makeUpvote, togglePublish } from "../Controllers/blogController.js";
+import { addBlog, deleteBlog, findBlogById, getAllBlogs, getBlogsByCategory, getBlogsByDate, getVotedState, makeDownVote, makeUpvote, togglePublish } from "../Controllers/blogController.js";
 import upload from "../middleware/upload.js";
 import { topBlogs } from "../Controllers/adminController.js";
 
@@ -9,6 +9,7 @@ blogRouter.post('/addblog',upload.single('image'),addBlog)
 blogRouter.get('/all',getAllBlogs)
 blogRouter.get("/date",getBlogsByDate)
 blogRouter.get("/popular",topBlogs)
+blogRouter.get("/voted/:blogId",getVotedState)
 blogRouter.get('/:blogId',findBlogById)
 blogRouter.delete('/delete',deleteBlog)
 blogRouter.post('/toggle-publish',togglePublish)

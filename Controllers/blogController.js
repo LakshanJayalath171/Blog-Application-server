@@ -104,6 +104,38 @@ export const findBlogById = async(req,res)=>{
     }
 }
 
+//get voted state
+export const getVotedState = async(req,res)=>{
+    try {
+        const {blogId} = req.params;
+        
+        const userIp = req.socket.remoteAddress || req.headers["x-forwarded-for"];
+        const blog = await Blog.findById(blogId)
+        
+        if(blog.upVotes.includes(userIp)){
+            return res.json({
+                success:true,
+                upvoted:true
+            })
+        }
+        else if(blog.downVotes.includes(userIp)){
+            return res.json({
+                success:true,
+                downVoted:true
+            })
+        }
+        else{
+            res.json({
+                success:false,
+                message:"Error occurs"
+            })
+        }
+    } 
+    catch (error) {
+        res.json({success:false,message:error.message})
+    }
+}
+
 // delete blog
 
 export const deleteBlog = async (req,res)=>{
@@ -163,7 +195,10 @@ export const makeUpvote = async (req,res)=>{
 
         //already upvoted
         if(blog.upVotes.includes(userIp)){
-            return res.json({success:false,message:"already upvoted"})
+            return res.json({
+                success:false,
+                message:"already upvoted"
+            })
         }
 
         blog.downVotes = blog.downVotes.filter((ip)=>ip !==userIp)
