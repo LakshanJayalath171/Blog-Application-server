@@ -10,7 +10,7 @@ import blogRouter from "./routes/blogRoutes.js";
 // creating express app
 const app = express();
 
-await connectDB();
+
 
 // middlewares
 app.use(cors());
@@ -29,9 +29,9 @@ app.get("/", (req, res) => {
 app.use("/api/admin", adminRouter);
 app.use("/api/blog", blogRouter);
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 8080;
+await connectDB().then
+app.listen(PORT,"0.0.0.0", () => {
     console.log("server started on " + PORT);
 });
 
