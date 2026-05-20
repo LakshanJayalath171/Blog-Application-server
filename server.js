@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 app.use("/api/admin", adminRouter);
 app.use("/api/blog", blogRouter);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT ||5000;
 
 connectDB()
   .then(() => {
