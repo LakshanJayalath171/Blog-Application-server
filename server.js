@@ -30,9 +30,15 @@ app.use("/api/admin", adminRouter);
 app.use("/api/blog", blogRouter);
 
 const PORT = process.env.PORT || 8080;
-await connectDB().then
-app.listen(PORT,"0.0.0.0", () => {
-    console.log("server started on " + PORT);
-});
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("server running on", PORT);
+    });
+  })
+  .catch((err) => {
+    console.error("DB connection failed", err);
+  });
 
 export default app;
